@@ -1,6 +1,7 @@
 package com.huanyu.mybatis.session.defaults;
 
 import com.huanyu.mybatis.binding.MapperRegistry;
+import com.huanyu.mybatis.session.Configuration;
 import com.huanyu.mybatis.session.SqlSession;
 import com.huanyu.mybatis.session.SqlSessionFactory;
 
@@ -15,10 +16,10 @@ import com.huanyu.mybatis.session.SqlSessionFactory;
  */
 public class DefaultSqlSessionFactory implements SqlSessionFactory {
 
-    private final MapperRegistry mapperRegistry;
+    private final Configuration configuration;
 
-    public DefaultSqlSessionFactory(MapperRegistry mapperRegistry) {
-        this.mapperRegistry = mapperRegistry;
+    public DefaultSqlSessionFactory(Configuration configuration) {
+        this.configuration = configuration;
     }
 
     // 默认的简单工厂实现，
@@ -26,6 +27,6 @@ public class DefaultSqlSessionFactory implements SqlSessionFactory {
     // 这样就可以在使用 SqlSession 时获取每个代理类的映射器对象。
     @Override
     public SqlSession openSession() {
-        return new DefaultSqlSession(mapperRegistry);
+        return new DefaultSqlSession(configuration);
     }
 }

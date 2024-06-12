@@ -1,6 +1,7 @@
 package com.huanyu.mybatis.binding;
 
 import cn.hutool.core.lang.ClassScanner;
+import com.huanyu.mybatis.session.Configuration;
 import com.huanyu.mybatis.session.SqlSession;
 
 import java.util.HashMap;
@@ -11,25 +12,43 @@ import java.util.Set;
  * ClassName: MapperRegistry
  * Package: com.huanyu.mybatis.binding
  * Description: 映射器注册机
- * 提供了 ClassScanner.scanPackage 扫描包路径，调用 addMapper 方法，给接口类创建 MapperProxyFactory 映射器代理类，并写入到 knownMappers 的 HashMap 缓存中。
+ * 被Configuration持有，存着。
  * @Author: 寰宇
  * @Create: 2024/6/11 15:50
  * @Version: 1.0
  */
 public class MapperRegistry {
 
+    private Configuration config;
+
+    public MapperRegistry(Configuration config) {
+        this.config = config;
+    }
+
     /**
      * 将已添加的映射器代理加入到 HashMap
+     * 已知的所有映射
+     * key:mapperInterface,即dao的数据库接口，不是方法
+     * value:MapperProxyFactory,即映射器代理工厂
      */
     private final Map<Class<?>, MapperProxyFactory<?>> knownMappers = new HashMap<>();
 
-    // 获取映射器代理类
+    /**
+     * 找到指定映射接口的映射文件，并根据映射文件信息为该映射接口生成一个代理实现
+     * @param type 映射接口
+     * @param sqlSession sqlSession
+     * @param <T> 映射接口类型
+     * @return 代理实现对象
+     */
+    @SuppressWarnings("unchecked")
     public <T> T getMapper(Class<T> type, SqlSession sqlSession) {
+        // 找出指定映射接口的代理工厂
         final MapperProxyFactory<T> mapperProxyFactory = (MapperProxyFactory<T>) knownMappers.get(type);
         if (mapperProxyFactory == null) {
             throw new RuntimeException("Type " + type + " is not known to the MapperRegistry.");
         }
         try {
+            // 通过mapperProxyFactory给出对应代理器的实例
             return mapperProxyFactory.newInstance(sqlSession);
         } catch (Exception e) {
             throw new RuntimeException("Error getting mapper instance. Cause: " + e, e);
