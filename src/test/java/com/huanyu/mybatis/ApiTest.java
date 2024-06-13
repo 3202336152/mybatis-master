@@ -1,8 +1,10 @@
 package com.huanyu.mybatis;
 
+import com.alibaba.fastjson.JSON;
 import com.huanyu.mybatis.binding.MapperRegistry;
 import com.huanyu.mybatis.dao.IUserDao;
 import com.huanyu.mybatis.io.Resources;
+import com.huanyu.mybatis.po.User;
 import com.huanyu.mybatis.session.SqlSession;
 import com.huanyu.mybatis.session.SqlSessionFactory;
 import com.huanyu.mybatis.session.SqlSessionFactoryBuilder;
@@ -39,8 +41,8 @@ public class ApiTest {
         IUserDao userDao = sqlSession.getMapper(IUserDao.class);
 
         // 3. 测试验证
-        String res = userDao.queryUserInfoById("10001");
-        logger.info("测试结果：{}", res);
+        User user = userDao.queryUserInfoById(1L);
+        logger.info("测试结果：{}", JSON.toJSONString(user));
 
     }
 

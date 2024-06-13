@@ -1,6 +1,7 @@
 package com.huanyu.mybatis.builder;
 
 import com.huanyu.mybatis.session.Configuration;
+import com.huanyu.mybatis.type.TypeAliasRegistry;
 
 /**
  * ClassName: BaseBuilder
@@ -14,9 +15,11 @@ import com.huanyu.mybatis.session.Configuration;
 public abstract class BaseBuilder {
 
     protected final Configuration configuration;
+    protected final TypeAliasRegistry typeAliasRegistry;
 
     public BaseBuilder(Configuration configuration) {
         this.configuration = configuration;
+        this.typeAliasRegistry = this.configuration.getTypeAliasRegistry();
     }
 
     public Configuration getConfiguration() {

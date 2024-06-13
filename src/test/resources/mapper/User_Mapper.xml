@@ -6,7 +6,7 @@
 <mapper namespace="com.huanyu.mybatis.dao.IUserDao">
 
     <select id="queryUserInfoById" parameterType="java.lang.Long" resultType="com.huanyu.mybatis.po.User">
-        SELECT id, userId, userHead, createTime
+        SELECT id, userId, userName, userHead
         FROM user
         where id = #{id}
     </select>

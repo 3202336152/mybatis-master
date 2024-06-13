@@ -1,7 +1,11 @@
 package com.huanyu.mybatis.session;
 
 import com.huanyu.mybatis.binding.MapperRegistry;
+import com.huanyu.mybatis.datasource.druid.DruidDataSourceFactory;
 import com.huanyu.mybatis.mapping.MappedStatement;
+import com.huanyu.mybatis.mapping.Environment;
+import com.huanyu.mybatis.transaction.jdbc.JdbcTransactionFactory;
+import com.huanyu.mybatis.type.TypeAliasRegistry;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,11 +20,18 @@ import java.util.Map;
  * 3、创建了大量Map，包括存储映射语句的Map，存储缓存的Map等，这些Map使用的是一种不允许覆盖的严格Map
  * 4、给出了大量的处理器的创建方法，包括参数处理器、语句处理器、结果处理器、执行器。
  * 这里并没有真正创建，只是给出了方法。
+ *
  * @Author: 寰宇
  * @Create: 2024/6/12 14:37
  * @Version: 1.0
  */
 public class Configuration {
+
+    /**
+     * 环境
+     */
+    protected Environment environment;
+
     /**
      * 映射注册机
      */
@@ -30,6 +41,16 @@ public class Configuration {
      * 映射的语句，存在Map里
      */
     protected final Map<String, MappedStatement> mappedStatements = new HashMap<>();
+
+    /**
+     * 类型别名注册机
+     */
+    protected final TypeAliasRegistry typeAliasRegistry = new TypeAliasRegistry();
+
+    public Configuration() {
+        typeAliasRegistry.registerAlias("JDBC", JdbcTransactionFactory.class);
+        typeAliasRegistry.registerAlias("DRUID", DruidDataSourceFactory.class);
+    }
 
     public void addMappers(String packageName) {
         mapperRegistry.addMappers(packageName);
@@ -54,4 +75,17 @@ public class Configuration {
     public MappedStatement getMappedStatement(String id) {
         return mappedStatements.get(id);
     }
+
+    public TypeAliasRegistry getTypeAliasRegistry() {
+        return typeAliasRegistry;
+    }
+
+    public Environment getEnvironment() {
+        return environment;
+    }
+
+    public void setEnvironment(Environment environment) {
+        this.environment = environment;
+    }
+
 }
