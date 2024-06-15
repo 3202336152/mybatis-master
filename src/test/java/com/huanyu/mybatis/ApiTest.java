@@ -9,12 +9,15 @@ import com.huanyu.mybatis.session.SqlSession;
 import com.huanyu.mybatis.session.SqlSessionFactory;
 import com.huanyu.mybatis.session.SqlSessionFactoryBuilder;
 import com.huanyu.mybatis.session.defaults.DefaultSqlSessionFactory;
+import com.huanyu.mybatis.datasource.pooled.PooledDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.sql.Connection;
+import java.sql.SQLException;
 
 /**
  * ClassName: ApiTest
@@ -29,7 +32,6 @@ public class ApiTest {
 
     private Logger logger = LoggerFactory.getLogger(ApiTest.class);
 
-    // XML的解析和注册使用
     @Test
     public void test_SqlSessionFactory() throws IOException {
         // 1. 从SqlSessionFactory中获取SqlSession
@@ -41,9 +43,26 @@ public class ApiTest {
         IUserDao userDao = sqlSession.getMapper(IUserDao.class);
 
         // 3. 测试验证
-        User user = userDao.queryUserInfoById(1L);
-        logger.info("测试结果：{}", JSON.toJSONString(user));
+        for (int i = 0; i < 50; i++) {
+            User user = userDao.queryUserInfoById(1L);
+            logger.info("测试结果：{}", JSON.toJSONString(user));
+        }
+    }
 
+    @Test
+    public void test_pooled() throws SQLException, InterruptedException {
+        PooledDataSource pooledDataSource = new PooledDataSource();
+        pooledDataSource.setDriver("com.mysql.jdbc.Driver");
+        pooledDataSource.setUrl("jdbc:mysql://127.0.0.1:3306/mybatis?useUnicode=true");
+        pooledDataSource.setUsername("root");
+        pooledDataSource.setPassword("123456");
+        // 持续获得连接
+        while (true){
+            Connection connection = pooledDataSource.getConnection();
+            System.out.println(connection);
+            Thread.sleep(1000);
+            connection.close();
+        }
     }
 
 }
