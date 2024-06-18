@@ -1,5 +1,7 @@
 package com.huanyu.mybatis.type;
 
+import com.huanyu.mybatis.io.Resources;
+
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -37,7 +39,29 @@ public class TypeAliasRegistry {
     }
 
     public <T> Class<T> resolveAlias(String string) {
-        String key = string.toLowerCase(Locale.ENGLISH);
-        return (Class<T>) TYPE_ALIASES.get(key);
+        try {
+            // 检查传入的字符串是否为 null，如果是 null 则返回 null
+            if (string == null) {
+                return null;
+            }
+            // 将传入的字符串转换为小写，便于在 TYPE_ALIASES 中查找
+            String key = string.toLowerCase(Locale.ENGLISH);
+            // 定义一个 Class<T> 类型的变量，用于存储找到的类
+            Class<T> value;
+            // 检查 TYPE_ALIASES 是否包含该 key
+            if (TYPE_ALIASES.containsKey(key)) {
+                // 如果包含，则从 TYPE_ALIASES 中获取对应的类
+                value = (Class<T>) TYPE_ALIASES.get(key);
+            } else {
+                // 如果不包含，则尝试通过类名加载该类
+                value = (Class<T>) Resources.classForName(string);
+            }
+            // 返回找到的类
+            return value;
+        } catch (ClassNotFoundException e) {
+            // 如果类未找到，捕获 ClassNotFoundException 并抛出一个带有详细信息的运行时异常
+            throw new RuntimeException("Could not resolve type alias '" + string + "'.  Cause: " + e, e);
+        }
     }
+
 }

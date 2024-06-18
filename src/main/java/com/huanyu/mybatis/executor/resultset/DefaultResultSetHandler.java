@@ -22,8 +22,12 @@ public class DefaultResultSetHandler implements ResultSetHandler{
 
     private final BoundSql boundSql;
 
+    private final MappedStatement mappedStatement;
+
+
     public DefaultResultSetHandler(Executor executor, MappedStatement mappedStatement, BoundSql boundSql) {
         this.boundSql = boundSql;
+        this.mappedStatement = mappedStatement;
     }
 
     /**
@@ -35,13 +39,8 @@ public class DefaultResultSetHandler implements ResultSetHandler{
     @Override
     public <E> List<E> handleResultSets(Statement stmt) throws SQLException {
         ResultSet resultSet = stmt.getResultSet();
-        try {
-            // 将结果集转换为对象列表
-            return resultSet2Obj(resultSet, Class.forName(boundSql.getResultType()));
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-            return null;
-        }
+        // 将结果集转换为对象列表
+        return resultSet2Obj(resultSet, mappedStatement.getResultType());
     }
 
     // 将 ResultSet 对象转换为特定类型的对象列表。

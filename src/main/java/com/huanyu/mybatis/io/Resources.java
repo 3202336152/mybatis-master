@@ -34,7 +34,7 @@ public class Resources {
      * @return 用于读取资源的 InputStream 对象
      * @throws IOException 如果资源未找到或读取失败
      */
-    private static InputStream getResourceAsStream(String resource) throws IOException {
+    public static InputStream getResourceAsStream(String resource) throws IOException {
         ClassLoader[] classLoaders = getClassLoaders();
         for (ClassLoader classLoader : classLoaders) {
             InputStream inputStream = classLoader.getResourceAsStream(resource);

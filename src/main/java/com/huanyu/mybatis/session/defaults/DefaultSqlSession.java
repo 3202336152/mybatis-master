@@ -31,6 +31,7 @@ public class DefaultSqlSession implements SqlSession {
         this.configuration = configuration;
         this.executor = executor;
     }
+
     @Override
     public <T> T selectOne(String statement) {
         return this.selectOne(statement, null);
@@ -39,19 +40,15 @@ public class DefaultSqlSession implements SqlSession {
     // 根据传入的 SQL 语句和参数执行查询，并返回一个结果对象。
     @Override
     public <T> T selectOne(String statement, Object parameter) {
-        try {
-            // 获取 MappedStatement 对象，通过配置文件中的 statement 名称
-            MappedStatement mappedStatement = configuration.getMappedStatement(statement);
-            // 执行器执行查询操作
-            List<T> list = executor.query(mappedStatement, parameter, Executor.NO_RESULT_HANDLER, mappedStatement.getBoundSql());
-            // 返回结果列表中的第一个对象
-            return list.get(0);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
 
+        // 获取 MappedStatement 对象，通过配置文件中的 statement 名称
+        MappedStatement mappedStatement = configuration.getMappedStatement(statement);
+        // 执行器执行查询操作
+        List<T> list = executor.query(mappedStatement, parameter, Executor.NO_RESULT_HANDLER, mappedStatement.getSqlSource().getBoundSql(parameter));
+        // 返回结果列表中的第一个对象
+        return list.get(0);
+
+    }
 
 
     @Override
