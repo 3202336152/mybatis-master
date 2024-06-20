@@ -1,5 +1,8 @@
 package com.huanyu.mybatis.scripting;
 
+import com.huanyu.mybatis.executor.parameter.ParameterHandler;
+import com.huanyu.mybatis.mapping.BoundSql;
+import com.huanyu.mybatis.mapping.MappedStatement;
 import com.huanyu.mybatis.mapping.SqlSource;
 import com.huanyu.mybatis.session.Configuration;
 import org.dom4j.Element;
@@ -25,5 +28,11 @@ public interface LanguageDriver {
      * @return SqlSource对象
      */
     SqlSource createSqlSource(Configuration configuration, Element script, Class<?> parameterType);
+
+    /**
+     * 创建参数处理器
+     */
+    ParameterHandler createParameterHandler(MappedStatement mappedStatement, Object parameterObject, BoundSql boundSql);
+
 
 }

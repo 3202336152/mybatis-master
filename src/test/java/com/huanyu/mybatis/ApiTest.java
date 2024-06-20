@@ -36,7 +36,7 @@ public class ApiTest {
     private Logger logger = LoggerFactory.getLogger(ApiTest.class);
 
     @Test
-    public void test_SqlSessionFactory() throws IOException {
+    public void test_queryUserInfoById() throws IOException {
         // 1. 从SqlSessionFactory中获取SqlSession
         SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().builder(Resources.getResourceAsReader("mybatis-config-datasource.xml"));
         SqlSession sqlSession = sqlSessionFactory.openSession();
@@ -46,6 +46,20 @@ public class ApiTest {
 
         // 3. 测试验证
         User user = userDao.queryUserInfoById(1L);
+        logger.info("测试结果：{}", JSON.toJSONString(user));
+    }
+
+    @Test
+    public void test_queryUserInfo() throws IOException {
+        // 1. 从SqlSessionFactory中获取SqlSession
+        SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().builder(Resources.getResourceAsReader("mybatis-config-datasource.xml"));
+        SqlSession sqlSession = sqlSessionFactory.openSession();
+
+        // 2. 获取映射器对象
+        IUserDao userDao = sqlSession.getMapper(IUserDao.class);
+
+        // 3. 测试验证
+        User user = userDao.queryUserInfo(new User(1L, "10001"));
         logger.info("测试结果：{}", JSON.toJSONString(user));
     }
 

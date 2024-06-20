@@ -23,7 +23,34 @@ public final class TypeHandlerRegistry {
     private final Map<Class<?>, TypeHandler<?>> ALL_TYPE_HANDLERS_MAP = new HashMap<>();
 
     public TypeHandlerRegistry() {
+        register(Long.class, new LongTypeHandler());
+        register(long.class, new LongTypeHandler());
 
+        register(Integer.class, new IntegerTypeHandler());
+        register(int.class, new IntegerTypeHandler());
+
+//        register(Short.class, new ShortTypeHandler());
+//        register(short.class, new ShortTypeHandler());
+//
+//        register(Byte.class, new ByteTypeHandler());
+//        register(byte.class, new ByteTypeHandler());
+
+        register(Double.class, new DoubleTypeHandler());
+        register(double.class, new DoubleTypeHandler());
+
+        register(Float.class, new FloatTypeHandler());
+        register(float.class, new FloatTypeHandler());
+
+        register(Boolean.class, new BooleanTypeHandler());
+        register(boolean.class, new BooleanTypeHandler());
+
+        register(String.class, new StringTypeHandler());
+        register(String.class, JdbcType.CHAR, new StringTypeHandler());
+        register(String.class, JdbcType.VARCHAR, new StringTypeHandler());
+    }
+
+    private <T> void register(Type javaType, TypeHandler<? extends T> typeHandler) {
+        register(javaType, null, typeHandler);
     }
 
     private void register(Type javaType, JdbcType jdbcType, TypeHandler<?> handler) {
@@ -33,4 +60,38 @@ public final class TypeHandlerRegistry {
         }
         ALL_TYPE_HANDLERS_MAP.put(handler.getClass(), handler);
     }
+
+    /**
+     * 找出一个类型处理器
+     * @param type Java类型
+     * @param jdbcType JDBC类型
+     * @param <T> 类型处理器的目标类型
+     * @return 类型处理器
+     */
+    @SuppressWarnings("unchecked")
+    public <T> TypeHandler<T> getTypeHandler(Class<T> type, JdbcType jdbcType) {
+        return getTypeHandler((Type) type, jdbcType); // 是ParamMap，因此不是单一的Java类型
+    }
+
+    public boolean hasTypeHandler(Class<?> javaType) {
+        return hasTypeHandler(javaType, null);
+    }
+
+    public boolean hasTypeHandler(Class<?> javaType, JdbcType jdbcType) {
+        return javaType != null && getTypeHandler((Type) javaType, jdbcType) != null;
+    }
+
+    private <T> TypeHandler<T> getTypeHandler(Type type, JdbcType jdbcType) {
+        Map<JdbcType, TypeHandler<?>> jdbcHandlerMap = TYPE_HANDLER_MAP.get(type);
+        TypeHandler<?> handler = null;
+        if (jdbcHandlerMap != null) {
+            handler = jdbcHandlerMap.get(jdbcType);
+            if (handler == null) {
+                handler = jdbcHandlerMap.get(null);
+            }
+        }
+        // type drives generics here
+        return (TypeHandler<T>) handler;
+    }
+
 }

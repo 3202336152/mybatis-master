@@ -1,7 +1,9 @@
 package com.huanyu.mybatis.mapping;
 
-import cn.hutool.db.meta.JdbcType;
+import com.huanyu.mybatis.type.JdbcType;
 import com.huanyu.mybatis.session.Configuration;
+import com.huanyu.mybatis.type.TypeHandler;
+import com.huanyu.mybatis.type.TypeHandlerRegistry;
 
 /**
  * ClassName: ParameterMapping
@@ -28,34 +30,53 @@ public class ParameterMapping {
     // 参数的jdbc类型
     private JdbcType jdbcType;
 
+    private TypeHandler<?> typeHandler;
+
     private ParameterMapping() {
     }
 
     public static class Builder {
 
+        // 创建一个新的ParameterMapping实例，用于存储构建过程中的属性值
         private ParameterMapping parameterMapping = new ParameterMapping();
 
+        // 构造方法，初始化ParameterMapping的基本属性
         public Builder(Configuration configuration, String property, Class<?> javaType) {
+            // 设置Configuration属性
             parameterMapping.configuration = configuration;
+            // 设置参数的属性名
             parameterMapping.property = property;
+            // 设置参数的Java类型
             parameterMapping.javaType = javaType;
         }
 
+        // 设置Java类型的方法
         public Builder javaType(Class<?> javaType) {
             parameterMapping.javaType = javaType;
-            return this;
+            return this; // 返回Builder实例，以便链式调用
         }
 
+        // 设置JDBC类型的方法
         public Builder jdbcType(JdbcType jdbcType) {
             parameterMapping.jdbcType = jdbcType;
-            return this;
+            return this; // 返回Builder实例，以便链式调用
         }
 
+        // 构建ParameterMapping对象的方法
         public ParameterMapping build() {
+            // 如果typeHandler未设置且javaType不为空，则自动选择适当的typeHandler
+            if (parameterMapping.typeHandler == null && parameterMapping.javaType != null) {
+                Configuration configuration = parameterMapping.configuration;
+                TypeHandlerRegistry typeHandlerRegistry = configuration.getTypeHandlerRegistry();
+                // 获取适用于当前javaType和jdbcType的typeHandler
+                parameterMapping.typeHandler = typeHandlerRegistry.getTypeHandler(parameterMapping.javaType, parameterMapping.jdbcType);
+            }
+
+            // 返回构建完成的ParameterMapping对象
             return parameterMapping;
         }
-
     }
+
 
     public Configuration getConfiguration() {
         return configuration;
@@ -71,5 +92,9 @@ public class ParameterMapping {
 
     public JdbcType getJdbcType() {
         return jdbcType;
+    }
+
+    public TypeHandler<?> getTypeHandler() {
+        return typeHandler;
     }
 }

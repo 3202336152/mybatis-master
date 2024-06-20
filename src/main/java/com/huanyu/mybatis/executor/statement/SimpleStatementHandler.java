@@ -22,7 +22,6 @@ import java.util.List;
 public class SimpleStatementHandler extends BaseStatementHandler{
 
     public SimpleStatementHandler(Executor executor, MappedStatement mappedStatement, Object parameterObject, ResultHandler resultHandler, BoundSql boundSql) {
-        // 调用BaseStatementHandler中的构造方法完成
         super(executor, mappedStatement, parameterObject, resultHandler, boundSql);
     }
 

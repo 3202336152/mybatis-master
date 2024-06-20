@@ -12,6 +12,7 @@ import java.util.Date;
  * @Version: 1.0
  */
 public class User {
+
     private Long id;
     // 用户ID
     private String userId;
@@ -23,6 +24,18 @@ public class User {
     private Date createTime;
     // 更新时间
     private Date updateTime;
+
+    public User() {
+    }
+
+    public User(Long id) {
+        this.id = id;
+    }
+
+    public User(Long id, String userId) {
+        this.id = id;
+        this.userId = userId;
+    }
 
     public Long getId() {
         return id;

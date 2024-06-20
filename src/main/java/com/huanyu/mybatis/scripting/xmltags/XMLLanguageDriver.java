@@ -1,7 +1,11 @@
 package com.huanyu.mybatis.scripting.xmltags;
 
+import com.huanyu.mybatis.executor.parameter.ParameterHandler;
+import com.huanyu.mybatis.mapping.BoundSql;
+import com.huanyu.mybatis.mapping.MappedStatement;
 import com.huanyu.mybatis.mapping.SqlSource;
 import com.huanyu.mybatis.scripting.LanguageDriver;
+import com.huanyu.mybatis.scripting.defaults.DefaultParameterHandler;
 import com.huanyu.mybatis.session.Configuration;
 import org.dom4j.Element;
 
@@ -28,5 +32,10 @@ public class XMLLanguageDriver implements LanguageDriver {
         // 用XML脚本构建器解析
         XMLScriptBuilder builder = new XMLScriptBuilder(configuration, script, parameterType);
         return builder.parseScriptNode();
+    }
+
+    @Override
+    public ParameterHandler createParameterHandler(MappedStatement mappedStatement, Object parameterObject, BoundSql boundSql) {
+        return new DefaultParameterHandler(mappedStatement, parameterObject, boundSql);
     }
 }

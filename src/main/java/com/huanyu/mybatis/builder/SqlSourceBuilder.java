@@ -4,8 +4,11 @@ import com.huanyu.mybatis.mapping.ParameterMapping;
 import com.huanyu.mybatis.mapping.SqlSource;
 import com.huanyu.mybatis.prasing.GenericTokenParser;
 import com.huanyu.mybatis.prasing.TokenHandler;
+import com.huanyu.mybatis.reflection.MetaClass;
 import com.huanyu.mybatis.reflection.MetaObject;
 import com.huanyu.mybatis.session.Configuration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +24,8 @@ import java.util.Map;
  * @Version: 1.0
  */
 public class SqlSourceBuilder extends BaseBuilder {
+
+    private static Logger logger = LoggerFactory.getLogger(SqlSourceBuilder.class);
 
     // 能够处理的占位符属性
     private static final String parameterProperties = "javaType,jdbcType,mode,numericScale,resultMap,typeHandler,jdbcTypeName";
@@ -83,10 +88,37 @@ public class SqlSourceBuilder extends BaseBuilder {
 
         // 构建参数映射
         private ParameterMapping buildParameterMapping(String content) {
-            // 先解析参数映射,就是转化成一个 HashMap | #{favouriteSection,jdbcType=VARCHAR}
+            // 解析参数映射，将参数表达式转换为一个 HashMap，例如：#{favouriteSection,jdbcType=VARCHAR}
             Map<String, String> propertiesMap = new ParameterExpression(content);
+
+            // 获取参数映射中的属性名
             String property = propertiesMap.get("property");
-            Class<?> propertyType = parameterType;
+            Class<?> propertyType;
+
+            // 判断 typeHandlerRegistry 是否有该参数类型的处理器
+            if (typeHandlerRegistry.hasTypeHandler(parameterType)) {
+                // 如果有处理器，直接使用参数类型
+                propertyType = parameterType;
+            } else if (property != null) {
+                // 如果属性名不为空
+                MetaClass metaClass = MetaClass.forClass(parameterType);
+                // 检查 MetaClass 是否有该属性的 getter 方法
+                if (metaClass.hasGetter(property)) {
+                    // 如果有 getter 方法，获取属性类型
+                    propertyType = metaClass.getGetterType(property);
+                } else {
+                    // 如果没有 getter 方法，默认使用 Object 类
+                    propertyType = Object.class;
+                }
+            } else {
+                // 如果属性名为空，默认使用 Object 类
+                propertyType = Object.class;
+            }
+
+            // 记录日志，输出当前构建的参数映射的属性名和属性类型
+            logger.info("构建参数映射 property：{} propertyType：{}", property, propertyType);
+
+            // 使用 ParameterMapping.Builder 构建 ParameterMapping 对象
             ParameterMapping.Builder builder = new ParameterMapping.Builder(configuration, property, propertyType);
             return builder.build();
         }

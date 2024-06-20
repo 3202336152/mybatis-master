@@ -11,4 +11,10 @@
         where id = #{id}
     </select>
 
+    <select id="queryUserInfo" parameterType="com.huanyu.mybatis.po.User" resultType="com.huanyu.mybatis.po.User">
+        SELECT id, userId, userName, userHead
+        FROM user
+        where id = #{id} and userId = #{userId}
+    </select>
+
 </mapper>

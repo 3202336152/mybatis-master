@@ -1,11 +1,14 @@
 package com.huanyu.mybatis.session.defaults;
 
+import com.alibaba.fastjson.JSON;
 import com.huanyu.mybatis.executor.Executor;
 import com.huanyu.mybatis.mapping.BoundSql;
 import com.huanyu.mybatis.mapping.Environment;
 import com.huanyu.mybatis.mapping.MappedStatement;
 import com.huanyu.mybatis.session.Configuration;
 import com.huanyu.mybatis.session.SqlSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.*;
 import java.util.List;
@@ -20,6 +23,8 @@ import java.util.List;
  * @Version: 1.0
  */
 public class DefaultSqlSession implements SqlSession {
+
+    private Logger logger = LoggerFactory.getLogger(DefaultSqlSession.class);
 
     // 配置信息
     private Configuration configuration;
@@ -40,7 +45,7 @@ public class DefaultSqlSession implements SqlSession {
     // 根据传入的 SQL 语句和参数执行查询，并返回一个结果对象。
     @Override
     public <T> T selectOne(String statement, Object parameter) {
-
+        logger.info("执行查询 statement：{} parameter：{}", statement, JSON.toJSONString(parameter));
         // 获取 MappedStatement 对象，通过配置文件中的 statement 名称
         MappedStatement mappedStatement = configuration.getMappedStatement(statement);
         // 执行器执行查询操作
