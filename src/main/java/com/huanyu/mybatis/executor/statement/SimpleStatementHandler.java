@@ -4,6 +4,7 @@ import com.huanyu.mybatis.executor.Executor;
 import com.huanyu.mybatis.mapping.BoundSql;
 import com.huanyu.mybatis.mapping.MappedStatement;
 import com.huanyu.mybatis.session.ResultHandler;
+import com.huanyu.mybatis.session.RowBounds;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -19,10 +20,10 @@ import java.util.List;
  * @Create: 2024/6/15 16:19
  * @Version: 1.0
  */
-public class SimpleStatementHandler extends BaseStatementHandler{
+public class SimpleStatementHandler extends BaseStatementHandler {
 
-    public SimpleStatementHandler(Executor executor, MappedStatement mappedStatement, Object parameterObject, ResultHandler resultHandler, BoundSql boundSql) {
-        super(executor, mappedStatement, parameterObject, resultHandler, boundSql);
+    public SimpleStatementHandler(Executor executor, MappedStatement mappedStatement, Object parameterObject, RowBounds rowBounds, ResultHandler resultHandler, BoundSql boundSql) {
+        super(executor, mappedStatement, parameterObject, resultHandler, rowBounds, boundSql);
     }
 
     @Override

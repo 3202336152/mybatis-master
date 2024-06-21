@@ -6,6 +6,7 @@ import com.huanyu.mybatis.mapping.BoundSql;
 import com.huanyu.mybatis.mapping.Environment;
 import com.huanyu.mybatis.mapping.MappedStatement;
 import com.huanyu.mybatis.session.Configuration;
+import com.huanyu.mybatis.session.RowBounds;
 import com.huanyu.mybatis.session.SqlSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,7 +50,7 @@ public class DefaultSqlSession implements SqlSession {
         // 获取 MappedStatement 对象，通过配置文件中的 statement 名称
         MappedStatement mappedStatement = configuration.getMappedStatement(statement);
         // 执行器执行查询操作
-        List<T> list = executor.query(mappedStatement, parameter, Executor.NO_RESULT_HANDLER, mappedStatement.getSqlSource().getBoundSql(parameter));
+        List<T> list = executor.query(mappedStatement, parameter, RowBounds.DEFAULT, Executor.NO_RESULT_HANDLER, mappedStatement.getSqlSource().getBoundSql(parameter));
         // 返回结果列表中的第一个对象
         return list.get(0);
 

@@ -1,6 +1,7 @@
 package com.huanyu.mybatis.builder.xml;
 
 import com.huanyu.mybatis.builder.BaseBuilder;
+import com.huanyu.mybatis.builder.MapperBuilderAssistant;
 import com.huanyu.mybatis.mapping.MappedStatement;
 import com.huanyu.mybatis.mapping.SqlCommandType;
 import com.huanyu.mybatis.mapping.SqlSource;
@@ -24,13 +25,14 @@ import java.util.Locale;
  * @Version: 1.0
  */
 public class XMLStatementBuilder extends BaseBuilder {
-    private String currentNamespace;
+
+    private MapperBuilderAssistant builderAssistant;
     private Element element;
 
-    public XMLStatementBuilder(Configuration configuration, Element element, String currentNamespace) {
+    public XMLStatementBuilder(Configuration configuration, MapperBuilderAssistant builderAssistant, Element element) {
         super(configuration);
+        this.builderAssistant = builderAssistant;
         this.element = element;
-        this.currentNamespace = currentNamespace;
     }
 
     // 解析select、insert、update、delete这四类节点
@@ -54,6 +56,8 @@ public class XMLStatementBuilder extends BaseBuilder {
         // 参数类型
         String parameterType = element.attributeValue("parameterType");
         Class<?> parameterTypeClass = resolveAlias(parameterType);
+        // 外部应用 resultMap
+        String resultMap = element.attributeValue("resultMap");
         // 结果类型
         String resultType = element.attributeValue("resultType");
         Class<?> resultTypeClass = resolveAlias(resultType);
@@ -67,11 +71,17 @@ public class XMLStatementBuilder extends BaseBuilder {
         Class<?> langClass = configuration.getLanguageRegistry().getDefaultDriverClass();
         LanguageDriver langDriver = configuration.getLanguageRegistry().getDriver(langClass);
 
+        // 解析成SqlSource，DynamicSqlSource/RawSqlSource
+
         SqlSource sqlSource = langDriver.createSqlSource(configuration, element, parameterTypeClass);
 
-        MappedStatement mappedStatement = new MappedStatement.Builder(configuration, currentNamespace + "." + id, sqlCommandType, sqlSource, resultTypeClass).build();
-
-        // 添加解析 SQL
-        configuration.addMappedStatement(mappedStatement);
+        // 调用助手类
+        builderAssistant.addMappedStatement(id,
+                sqlSource,
+                sqlCommandType,
+                parameterTypeClass,
+                resultMap,
+                resultTypeClass,
+                langDriver);
     }
 }

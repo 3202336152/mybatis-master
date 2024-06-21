@@ -3,6 +3,7 @@ package com.huanyu.mybatis.executor;
 import com.huanyu.mybatis.mapping.BoundSql;
 import com.huanyu.mybatis.mapping.MappedStatement;
 import com.huanyu.mybatis.session.ResultHandler;
+import com.huanyu.mybatis.session.RowBounds;
 import com.huanyu.mybatis.transaction.Transaction;
 
 import java.sql.SQLException;
@@ -33,7 +34,7 @@ public interface Executor {
      * @return 查询结果
      * @throws SQLException
      */
-    <E> List<E> query(MappedStatement ms, Object parameter, ResultHandler resultHandler, BoundSql boundSql);
+    <E> List<E> query(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler, BoundSql boundSql);
 
     // 获取事务
     Transaction getTransaction();

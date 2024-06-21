@@ -1,6 +1,7 @@
 package com.huanyu.mybatis.builder.xml;
 
 import com.huanyu.mybatis.builder.BaseBuilder;
+import com.huanyu.mybatis.builder.MapperBuilderAssistant;
 import com.huanyu.mybatis.io.Resources;
 import com.huanyu.mybatis.session.Configuration;
 import org.dom4j.Document;
@@ -35,7 +36,7 @@ public class XMLMapperBuilder extends BaseBuilder {
 
     private Element element;
     private String resource;
-    private String currentNamespace;
+    private MapperBuilderAssistant builderAssistant;
 
     public XMLMapperBuilder(InputStream inputStream, Configuration configuration, String resource) throws DocumentException {
         this(new SAXReader().read(inputStream), configuration, resource);
@@ -43,6 +44,7 @@ public class XMLMapperBuilder extends BaseBuilder {
 
     private XMLMapperBuilder(Document document, Configuration configuration, String resource) {
         super(configuration);
+        this.builderAssistant = new MapperBuilderAssistant(configuration, resource);
         this.element = document.getRootElement();
         this.resource = resource;
     }
@@ -57,7 +59,7 @@ public class XMLMapperBuilder extends BaseBuilder {
             // 标记一下，已经加载过了
             configuration.addLoadedResource(resource);
             // 绑定映射器到namespace
-            configuration.addMapper(Resources.classForName(currentNamespace));
+            configuration.addMapper(Resources.classForName(builderAssistant.getCurrentNamespace()));
         }
     }
 
@@ -69,10 +71,11 @@ public class XMLMapperBuilder extends BaseBuilder {
     // </mapper>
     private void configurationElement(Element element) {
         // 1.配置namespace
-        currentNamespace = element.attributeValue("namespace");
-        if (currentNamespace.equals("")) {
+        String namespace = element.attributeValue("namespace");
+        if (namespace.equals("")) {
             throw new RuntimeException("Mapper's namespace cannot be empty");
         }
+        builderAssistant.setCurrentNamespace(namespace);
 
         // 2.配置select|insert|update|delete
         // 处理各个数据库操作语句
@@ -86,7 +89,7 @@ public class XMLMapperBuilder extends BaseBuilder {
             // <select id="selectUser" resultType="com.example.demo.UserBean">
             //    select * from `user` where id = #{id}
             //  </select>
-            final XMLStatementBuilder statementParser = new XMLStatementBuilder(configuration, element, currentNamespace);
+            final XMLStatementBuilder statementParser = new XMLStatementBuilder(configuration, builderAssistant, element);
             statementParser.parseStatementNode();
         }
     }

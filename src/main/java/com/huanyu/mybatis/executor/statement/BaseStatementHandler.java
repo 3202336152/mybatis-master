@@ -7,6 +7,7 @@ import com.huanyu.mybatis.mapping.BoundSql;
 import com.huanyu.mybatis.mapping.MappedStatement;
 import com.huanyu.mybatis.session.Configuration;
 import com.huanyu.mybatis.session.ResultHandler;
+import com.huanyu.mybatis.session.RowBounds;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -32,17 +33,19 @@ public abstract class BaseStatementHandler implements StatementHandler{
 
     protected final ParameterHandler parameterHandler;
 
+    protected final RowBounds rowBounds;
     protected BoundSql boundSql;
 
-    public BaseStatementHandler(Executor executor, MappedStatement mappedStatement, Object parameterObject, ResultHandler resultHandler, BoundSql boundSql) {
+    public BaseStatementHandler(Executor executor, MappedStatement mappedStatement, Object parameterObject, ResultHandler resultHandler, RowBounds rowBounds, BoundSql boundSql) {
         this.configuration = mappedStatement.getConfiguration();
         this.executor = executor;
         this.mappedStatement = mappedStatement;
+        this.rowBounds = rowBounds;
         this.boundSql = boundSql;
 
         this.parameterObject = parameterObject;
         this.parameterHandler = configuration.newParameterHandler(mappedStatement, parameterObject, boundSql);
-        this.resultSetHandler = configuration.newResultSetHandler(executor, mappedStatement, boundSql);
+        this.resultSetHandler = configuration.newResultSetHandler(executor, mappedStatement, rowBounds, resultHandler, boundSql);
     }
 
     // 从连接中获取一个Statement，并设置事务超时时间

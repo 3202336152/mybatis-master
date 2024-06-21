@@ -1,6 +1,7 @@
 package com.huanyu.mybatis.type;
 
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
@@ -16,5 +17,10 @@ public class DoubleTypeHandler extends BaseTypeHandler<Double> {
     @Override
     protected void setNonNullParameter(PreparedStatement ps, int i, Double parameter, JdbcType jdbcType) throws SQLException {
         ps.setDouble(i, parameter);
+    }
+
+    @Override
+    public Double getResult(ResultSet rs, String columnName) throws SQLException {
+        return rs.getDouble(columnName);
     }
 }

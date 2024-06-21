@@ -5,6 +5,7 @@ import com.huanyu.mybatis.mapping.BoundSql;
 import com.huanyu.mybatis.mapping.MappedStatement;
 import com.huanyu.mybatis.session.Configuration;
 import com.huanyu.mybatis.session.ResultHandler;
+import com.huanyu.mybatis.session.RowBounds;
 import com.huanyu.mybatis.transaction.Transaction;
 
 import java.sql.Connection;
@@ -28,10 +29,11 @@ public class SimpleExecutor extends BaseExecutor{
     }
 
     @Override
-    protected <E> List<E> doQuery(MappedStatement ms, Object parameter, ResultHandler resultHandler, BoundSql boundSql) {
+    protected <E> List<E> doQuery(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler, BoundSql boundSql) {
         try {
             Configuration configuration = ms.getConfiguration();
-            StatementHandler handler = configuration.newStatementHandler(this, ms, parameter, resultHandler, boundSql);
+            // 新建一个 StatementHandler
+            StatementHandler handler = configuration.newStatementHandler(this, ms, parameter, rowBounds, resultHandler, boundSql);
             // 获取数据库连接
             Connection connection = transaction.getConnection();
             // Statement是用于执行静态SQL语句并返回其生成的结果的对象

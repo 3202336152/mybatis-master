@@ -1,6 +1,7 @@
 package com.huanyu.mybatis.type;
 
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
@@ -16,5 +17,10 @@ public class BooleanTypeHandler extends BaseTypeHandler<Boolean> {
     @Override
     protected void setNonNullParameter(PreparedStatement ps, int i, Boolean parameter, JdbcType jdbcType) throws SQLException {
         ps.setBoolean(i, parameter);
+    }
+
+    @Override
+    public Boolean getResult(ResultSet rs, String columnName) throws SQLException {
+        return rs.getBoolean(columnName);
     }
 }
