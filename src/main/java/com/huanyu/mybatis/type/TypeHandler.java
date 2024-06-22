@@ -21,7 +21,7 @@ public interface TypeHandler<T> {
     void setParameter(PreparedStatement ps, int i, T parameter, JdbcType jdbcType) throws SQLException;
 
     /**
-     * 获取结果
+     * 获取参数结果
      */
     T getResult(ResultSet rs, String columnName) throws SQLException;
 

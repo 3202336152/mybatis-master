@@ -1,26 +1,17 @@
 package com.huanyu.mybatis;
 
 import com.alibaba.fastjson.JSON;
-import com.huanyu.mybatis.binding.MapperRegistry;
 import com.huanyu.mybatis.dao.IUserDao;
 import com.huanyu.mybatis.io.Resources;
 import com.huanyu.mybatis.po.User;
 import com.huanyu.mybatis.session.SqlSession;
 import com.huanyu.mybatis.session.SqlSessionFactory;
 import com.huanyu.mybatis.session.SqlSessionFactoryBuilder;
-import com.huanyu.mybatis.session.defaults.DefaultSqlSessionFactory;
-import com.huanyu.mybatis.datasource.pooled.PooledDataSource;
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.junit.Test;
 
 import java.io.IOException;
-import java.io.Reader;
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
-import java.sql.Connection;
-import java.sql.SQLException;
 
 /**
  * ClassName: ApiTest

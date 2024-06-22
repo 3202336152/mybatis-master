@@ -16,8 +16,9 @@ import com.huanyu.mybatis.session.RowBounds;
 import com.huanyu.mybatis.type.TypeHandler;
 import com.huanyu.mybatis.type.TypeHandlerRegistry;
 
-import java.lang.reflect.Method;
-import java.sql.*;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -109,7 +110,7 @@ public class DefaultResultSetHandler implements ResultSetHandler{
     private void handleResultSet(ResultSetWrapper rsw, ResultMap resultMap, List<Object> multipleResults, ResultMapping parentMapping) throws SQLException {
         // 如果 resultHandler 为空，则创建一个新的 DefaultResultHandler
         if (resultHandler == null) {
-            // 1. 新创建结果处理器
+            // 1. 新创建默认结果处理器
             DefaultResultHandler defaultResultHandler = new DefaultResultHandler(objectFactory);
             // 2. 封装数据，将结果集中的行映射到结果对象
             handleRowValuesForSimpleResultMap(rsw, resultMap, defaultResultHandler, rowBounds, null);
@@ -143,7 +144,7 @@ public class DefaultResultSetHandler implements ResultSetHandler{
      * 获取一行的值，将结果集中的一行映射到结果对象
      */
     private Object getRowValue(ResultSetWrapper rsw, ResultMap resultMap) throws SQLException {
-        // 根据结果映射类型，实例化结果对象
+        // 根据结果映射类型，实例化结果对象(反射创建对象)
         Object resultObject = createResultObject(rsw, resultMap, null);
         // 如果结果对象不为空且没有对应类型的 TypeHandler
         if (resultObject != null && !typeHandlerRegistry.hasTypeHandler(resultMap.getType())) {

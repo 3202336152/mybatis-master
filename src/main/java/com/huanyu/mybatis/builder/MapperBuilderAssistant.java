@@ -74,16 +74,16 @@ public class MapperBuilderAssistant extends BaseBuilder{
         id = applyCurrentNamespace(id, false);
         MappedStatement.Builder statementBuilder = new MappedStatement.Builder(configuration, id, sqlCommandType, sqlSource, resultType);
 
-        // 结果映射，给 MappedStatement#resultMaps
+        // 结果映射，给 MappedStatement 创建 resultMaps
         setStatementResultMap(resultMap, resultType, statementBuilder);
-
+        // 构建mappedStatement
         MappedStatement statement = statementBuilder.build();
         // 映射语句信息，建造完存放到配置项中
         configuration.addMappedStatement(statement);
 
         return statement;
     }
-
+    // 创建resultMap 即使不使用resultMap也需要创建，因为resultMap是可以为空的
     private void setStatementResultMap(
             String resultMap,
             Class<?> resultType,

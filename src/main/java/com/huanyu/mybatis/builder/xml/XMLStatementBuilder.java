@@ -2,7 +2,6 @@ package com.huanyu.mybatis.builder.xml;
 
 import com.huanyu.mybatis.builder.BaseBuilder;
 import com.huanyu.mybatis.builder.MapperBuilderAssistant;
-import com.huanyu.mybatis.mapping.MappedStatement;
 import com.huanyu.mybatis.mapping.SqlCommandType;
 import com.huanyu.mybatis.mapping.SqlSource;
 import com.huanyu.mybatis.scripting.LanguageDriver;
@@ -51,7 +50,7 @@ public class XMLStatementBuilder extends BaseBuilder {
     //  SELECT * FROM PERSON WHERE ID = #{id}
     //</select>
     public void parseStatementNode() {
-        // 读取当前节点的id与databaseId
+        // 读取当前节点的id
         String id = element.attributeValue("id");
         // 参数类型
         String parameterType = element.attributeValue("parameterType");
@@ -72,7 +71,6 @@ public class XMLStatementBuilder extends BaseBuilder {
         LanguageDriver langDriver = configuration.getLanguageRegistry().getDriver(langClass);
 
         // 解析成SqlSource，DynamicSqlSource/RawSqlSource
-
         SqlSource sqlSource = langDriver.createSqlSource(configuration, element, parameterTypeClass);
 
         // 调用助手类
