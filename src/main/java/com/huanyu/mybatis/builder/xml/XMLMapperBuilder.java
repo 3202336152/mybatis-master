@@ -79,18 +79,25 @@ public class XMLMapperBuilder extends BaseBuilder {
 
         // 2.配置select|insert|update|delete
         // 处理各个数据库操作语句
-        buildStatementFromContext(element.elements("select"));
+        buildStatementFromContext(element.elements("select"),
+                element.elements("insert"),
+                element.elements("update"),
+                element.elements("delete")
+        );
     }
 
     // 配置select|insert|update|delete
-    private void buildStatementFromContext(List<Element> list) {
-        for (Element element : list) {
-            // 单条语句的解析器，解析类似：
-            // <select id="selectUser" resultType="com.example.demo.UserBean">
-            //    select * from `user` where id = #{id}
-            //  </select>
-            final XMLStatementBuilder statementParser = new XMLStatementBuilder(configuration, builderAssistant, element);
-            statementParser.parseStatementNode();
+    @SafeVarargs
+    private final void buildStatementFromContext(List<Element>... lists) {
+        for (List<Element> list : lists) {
+            for (Element element : list) {
+                // 单条语句的解析器，解析类似：
+                // <select id="selectUser" resultType="com.example.demo.UserBean">
+                //    select * from `user` where id = #{id}
+                //  </select>
+                final XMLStatementBuilder statementParser = new XMLStatementBuilder(configuration, builderAssistant, element);
+                statementParser.parseStatementNode();
+            }
         }
     }
 }

@@ -9,6 +9,7 @@ import com.huanyu.mybatis.transaction.Transaction;
 import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.List;
 
 /**
@@ -44,6 +45,19 @@ public abstract class BaseExecutor implements Executor {
         return doQuery(ms, parameter, rowBounds, resultHandler, boundSql);
     }
 
+    /**
+     * 更新数据库数据，INSERT/UPDATE/DELETE三种操作都会调用该方法
+     * @param ms 映射语句
+     * @param parameter 参数对象
+     * @return 数据库操作结果
+     * @throws SQLException
+     */
+    @Override
+    public int update(MappedStatement ms, Object parameter) throws SQLException {
+        return doUpdate(ms, parameter);
+    }
+
+    protected abstract int doUpdate(MappedStatement ms, Object parameter) throws SQLException;
     protected abstract <E> List<E> doQuery(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler, BoundSql boundSql);
 
     @Override
@@ -89,16 +103,14 @@ public abstract class BaseExecutor implements Executor {
         }
     }
 
-    /**
-     * 更新数据库数据，INSERT/UPDATE/DELETE三种操作都会调用该方法
-     * @param ms 映射语句
-     * @param parameter 参数对象
-     * @return 数据库操作结果
-     * @throws SQLException
-     */
-    @Override
-    public int update(MappedStatement ms, Object parameter) throws SQLException {
-        return 0;
+    protected void closeStatement(Statement statement) {
+        if (statement != null) {
+            try {
+                statement.close();
+            } catch (SQLException ignore) {
+            }
+        }
     }
+
 
 }

@@ -46,18 +46,30 @@ public class MapperMethod {
         Object result = null;
         // 根据SQL语句类型，执行不同操作
         switch (command.getType()) {
-            case INSERT:
-                break;
-            case DELETE:
-                break;
-            case UPDATE:
-                break;
-            case SELECT:
-                // 将方法参数数组args转换为SQL命令所需的参数格式
+            case INSERT: {
                 Object param = method.convertArgsToSqlCommandParam(args);
-                // 使用转换后的参数param执行SQL查询，查询命令的名称由command.getName()提供，并将查询结果赋给result
-                result = sqlSession.selectOne(command.getName(), param);
+                result = sqlSession.insert(command.getName(), param);
                 break;
+            }
+            case DELETE: {
+                Object param = method.convertArgsToSqlCommandParam(args);
+                result = sqlSession.delete(command.getName(), param);
+                break;
+            }
+            case UPDATE: {
+                Object param = method.convertArgsToSqlCommandParam(args);
+                result = sqlSession.update(command.getName(), param);
+                break;
+            }
+            case SELECT: {
+                Object param = method.convertArgsToSqlCommandParam(args);
+                if (method.returnsMany) {
+                    result = sqlSession.selectList(command.getName(), param);
+                } else {
+                    result = sqlSession.selectOne(command.getName(), param);
+                }
+                break;
+            }
             default:
                 throw new RuntimeException("Unknown execution method for: " + command.getName());
         }
@@ -96,9 +108,13 @@ public class MapperMethod {
      */
     public static class MethodSignature {
 
+        private final boolean returnsMany;
+        private final Class<?> returnType;
         private final SortedMap<Integer, String> params;
 
-        public MethodSignature(Configuration configuration, Method method) {
+        public MethodSignature(Configuration configuration,Method method) {
+            this.returnType = method.getReturnType();
+            this.returnsMany = (configuration.getObjectFactory().isCollection(this.returnType) || this.returnType.isArray());
             this.params = Collections.unmodifiableSortedMap(getParams(method));
         }
 

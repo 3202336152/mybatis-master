@@ -2,15 +2,6 @@ package com.huanyu.mybatis.po;
 
 import java.util.Date;
 
-/**
- * ClassName: User
- * Package: com.huanyu.mybatis.po
- * Description:
- *
- * @Author: 寰宇
- * @Create: 2024/6/12 14:51
- * @Version: 1.0
- */
 public class User {
 
     private Long id;
@@ -35,6 +26,12 @@ public class User {
     public User(Long id, String userId) {
         this.id = id;
         this.userId = userId;
+    }
+
+    public User(Long id, String userId, String userName) {
+        this.id = id;
+        this.userId = userId;
+        this.userName = userName;
     }
 
     public Long getId() {

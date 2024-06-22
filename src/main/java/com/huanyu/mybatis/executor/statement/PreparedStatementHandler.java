@@ -39,6 +39,13 @@ public class PreparedStatementHandler extends BaseStatementHandler {
     }
 
     @Override
+    public int update(Statement statement) throws SQLException {
+        PreparedStatement ps = (PreparedStatement) statement;
+        ps.execute();
+        return ps.getUpdateCount();
+    }
+
+    @Override
     public <E> List<E> query(Statement statement, ResultHandler resultHandler) throws SQLException {
         PreparedStatement ps = (PreparedStatement) statement;
         // 执行真正的查询，查询完成后，结果就在ps中

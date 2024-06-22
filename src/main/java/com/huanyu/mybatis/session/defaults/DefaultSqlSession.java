@@ -2,8 +2,6 @@ package com.huanyu.mybatis.session.defaults;
 
 import com.alibaba.fastjson.JSON;
 import com.huanyu.mybatis.executor.Executor;
-import com.huanyu.mybatis.mapping.BoundSql;
-import com.huanyu.mybatis.mapping.Environment;
 import com.huanyu.mybatis.mapping.MappedStatement;
 import com.huanyu.mybatis.session.Configuration;
 import com.huanyu.mybatis.session.RowBounds;
@@ -11,7 +9,7 @@ import com.huanyu.mybatis.session.SqlSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.*;
+import java.sql.SQLException;
 import java.util.List;
 
 /**
@@ -54,6 +52,43 @@ public class DefaultSqlSession implements SqlSession {
         // 返回结果列表中的第一个对象
         return list.get(0);
 
+    }
+
+    @Override
+    public <E> List<E> selectList(String statement, Object parameter) {
+        logger.info("执行查询 statement：{} parameter：{}", statement, JSON.toJSONString(parameter));
+        MappedStatement ms = configuration.getMappedStatement(statement);
+        return executor.query(ms, parameter, RowBounds.DEFAULT, Executor.NO_RESULT_HANDLER, ms.getSqlSource().getBoundSql(parameter));
+    }
+
+    @Override
+    public int insert(String statement, Object parameter) {
+        // 在 Mybatis 中 insert 调用的是 update
+        return update(statement, parameter);
+    }
+
+    @Override
+    public int update(String statement, Object parameter) {
+        MappedStatement ms = configuration.getMappedStatement(statement);
+        try {
+            return executor.update(ms, parameter);
+        } catch (SQLException e) {
+            throw new RuntimeException("Error updating database.  Cause: " + e);
+        }
+    }
+
+    @Override
+    public Object delete(String statement, Object parameter) {
+        return update(statement, parameter);
+    }
+
+    @Override
+    public void commit() {
+        try {
+            executor.commit(true);
+        } catch (SQLException e) {
+            throw new RuntimeException("Error committing transaction.  Cause: " + e);
+        }
     }
 
 

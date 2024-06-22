@@ -24,6 +24,9 @@ public interface StatementHandler {
     // 为Statement绑定实参
     void parameterize(Statement statement) throws SQLException;
 
+    // 执行更新
+    int update(Statement statement) throws SQLException;
+
     // 执行查询操作，返回list
     <E> List<E> query(Statement statement, ResultHandler resultHandler) throws SQLException;
 
