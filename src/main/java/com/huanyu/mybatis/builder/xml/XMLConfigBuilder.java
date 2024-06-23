@@ -3,10 +3,7 @@ package com.huanyu.mybatis.builder.xml;
 import com.huanyu.mybatis.builder.BaseBuilder;
 import com.huanyu.mybatis.datasource.DataSourceFactory;
 import com.huanyu.mybatis.io.Resources;
-import com.huanyu.mybatis.mapping.BoundSql;
 import com.huanyu.mybatis.mapping.Environment;
-import com.huanyu.mybatis.mapping.MappedStatement;
-import com.huanyu.mybatis.mapping.SqlCommandType;
 import com.huanyu.mybatis.session.Configuration;
 import com.huanyu.mybatis.transaction.TransactionFactory;
 import org.dom4j.Document;
@@ -18,7 +15,8 @@ import org.xml.sax.InputSource;
 import javax.sql.DataSource;
 import java.io.InputStream;
 import java.io.Reader;
-import java.util.*;
+import java.util.List;
+import java.util.Properties;
 
 /**
  * ClassName: XMLConfigBuilder
@@ -126,8 +124,10 @@ public class XMLConfigBuilder extends BaseBuilder {
     /**
      * 解析mappers节点，例如：
      * <mappers>
-     *    <mapper resource="com/huanyu/mybatis/dao//UserDao.xml"/>
-     *    <package name="com.huanyu.mybatis.mybatisDemo" />
+     *	 <mapper resource="com/huanyu/mybatis/dao/IUserDao.xml"/>
+     *	 <mapper resource="com/huanyu/mybatis/dao/BlogMapper.xml"/>
+     *	 <mapper resource="com/huanyu/mybatis/dao/PostMapper.xml"/>
+     *   <mapper class="com.huanyu.mybatis.dao.IUserDao"/>
      * </mappers>
      * @param mappers mappers节点
      * @throws Exception
@@ -137,11 +137,19 @@ public class XMLConfigBuilder extends BaseBuilder {
         List<Element> mapperList = mappers.elements("mapper");
         for (Element e : mapperList) {
             String resource = e.attributeValue("resource");
-            InputStream inputStream = Resources.getResourceAsStream(resource);
-
-            // 在for循环里每个mapper都重新new一个XMLMapperBuilder，来解析
-            XMLMapperBuilder mapperParser = new XMLMapperBuilder(inputStream, configuration, resource);
-            mapperParser.parse();
+            String mapperClass = e.attributeValue("class");
+            // XML 解析
+            if (resource != null && mapperClass == null) {
+                InputStream inputStream = Resources.getResourceAsStream(resource);
+                // 在for循环里每个mapper都重新new一个XMLMapperBuilder，来解析
+                XMLMapperBuilder mapperParser = new XMLMapperBuilder(inputStream, configuration, resource);
+                mapperParser.parse();
+            }
+            // Annotation 注解解析
+            else if (resource == null && mapperClass != null) {
+                Class<?> mapperInterface = Resources.classForName(mapperClass);
+                configuration.addMapper(mapperInterface);
+            }
         }
     }
 

@@ -1,9 +1,6 @@
 package com.huanyu.mybatis.builder;
 
-import com.huanyu.mybatis.mapping.MappedStatement;
-import com.huanyu.mybatis.mapping.ResultMap;
-import com.huanyu.mybatis.mapping.SqlCommandType;
-import com.huanyu.mybatis.mapping.SqlSource;
+import com.huanyu.mybatis.mapping.*;
 import com.huanyu.mybatis.scripting.LanguageDriver;
 import com.huanyu.mybatis.session.Configuration;
 
@@ -52,9 +49,18 @@ public class MapperBuilderAssistant extends BaseBuilder{
         if (base == null) {
             return null;
         }
+
         if (isReference) {
             if (base.contains(".")) return base;
+        } else {
+            if (base.startsWith(currentNamespace + ".")) {
+                return base;
+            }
+            if (base.contains(".")) {
+                throw new RuntimeException("Dots are not allowed in element names, please remove it from " + base);
+            }
         }
+
         return currentNamespace + "." + base;
     }
 
@@ -94,7 +100,10 @@ public class MapperBuilderAssistant extends BaseBuilder{
         List<ResultMap> resultMaps = new ArrayList<>();
 
         if (resultMap != null) {
-            // TODO：暂无Map结果映射配置，本章节不添加此逻辑
+            String[] resultMapNames = resultMap.split(",");
+            for (String resultMapName : resultMapNames) {
+                resultMaps.add(configuration.getResultMap(resultMapName.trim()));
+            }
         }
         /*
          * 通常使用 resultType 即可满足大部分场景
@@ -110,5 +119,17 @@ public class MapperBuilderAssistant extends BaseBuilder{
             resultMaps.add(inlineResultMapBuilder.build());
         }
         statementBuilder.resultMaps(resultMaps);
+    }
+
+    public ResultMap addResultMap(String id, Class<?> type, List<ResultMapping> resultMappings) {
+        ResultMap.Builder inlineResultMapBuilder = new ResultMap.Builder(
+                configuration,
+                id,
+                type,
+                resultMappings);
+
+        ResultMap resultMap = inlineResultMapBuilder.build();
+        configuration.addResultMap(resultMap);
+        return resultMap;
     }
 }
