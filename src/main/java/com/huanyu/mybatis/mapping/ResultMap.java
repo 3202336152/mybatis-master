@@ -4,6 +4,7 @@ import com.huanyu.mybatis.session.Configuration;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 /**
@@ -30,7 +31,7 @@ public class ResultMap {
     private ResultMap() {
     }
 
-    // 静态内部类 Builder 用于构建 ResultMap 实例
+    // 用于构建 ResultMap 实例
     public static class Builder {
         private ResultMap resultMap = new ResultMap(); // 创建一个新的 ResultMap 实例
 
@@ -43,10 +44,21 @@ public class ResultMap {
 
         // build 方法：设置 mappedColumns 并返回构建好的 ResultMap 实例
         public ResultMap build() {
-            resultMap.mappedColumns = new HashSet<>(); // 初始化 mappedColumns 集合
+            // 初始化 mappedColumns 集合
+            resultMap.mappedColumns = new HashSet<>();
+            // 遍历 resultMappings 列表
+            for (ResultMapping resultMapping : resultMap.resultMappings) {
+                // 获取列名
+                final String column = resultMapping.getColumn();
+                // 检查列名是否不为空
+                if (column != null) {
+                    // 将列名转换为大写并添加到 mappedColumns 集合中
+                    resultMap.mappedColumns.add(column.toUpperCase(Locale.ENGLISH));
+                }
+            }
+            // 返回构建好的 resultMap
             return resultMap;
         }
-
     }
 
     public String getId() {
@@ -62,6 +74,10 @@ public class ResultMap {
     }
 
     public List<ResultMapping> getResultMappings() {
+        return resultMappings;
+    }
+
+    public List<ResultMapping> getPropertyResultMappings() {
         return resultMappings;
     }
 

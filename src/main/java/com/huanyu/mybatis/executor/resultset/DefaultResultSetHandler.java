@@ -34,6 +34,7 @@ import java.util.Locale;
  */
 public class DefaultResultSetHandler implements ResultSetHandler{
 
+    private static final Object NO_VALUE = new Object();
     private final Configuration configuration;
     private final MappedStatement mappedStatement;
     private final RowBounds rowBounds;
@@ -152,6 +153,8 @@ public class DefaultResultSetHandler implements ResultSetHandler{
             final MetaObject metaObject = configuration.newMetaObject(resultObject);
             // 自动映射结果集中的列到结果对象的属性
             applyAutomaticMappings(rsw, resultMap, metaObject, null);
+            // Map映射：根据映射类型赋值到字段
+            applyPropertyMappings(rsw, resultMap, metaObject, null);
         }
         // 返回结果对象
         return resultObject;
@@ -229,5 +232,35 @@ public class DefaultResultSetHandler implements ResultSetHandler{
         // 返回是否找到了映射的值
         return foundValues;
     }
+
+    private boolean applyPropertyMappings(ResultSetWrapper rsw, ResultMap resultMap, MetaObject metaObject, String columnPrefix) throws SQLException {
+        // 获取映射的列名列表，根据resultMap和列名前缀
+        final List<String> mappedColumnNames = rsw.getMappedColumnNames(resultMap, columnPrefix);
+        boolean foundValues = false;
+        // 获取resultMap中的属性映射列表
+        final List<ResultMapping> propertyMappings = resultMap.getPropertyResultMappings();
+        // 遍历每个属性映射
+        for (ResultMapping propertyMapping : propertyMappings) {
+            // 获取映射的列名
+            final String column = propertyMapping.getColumn();
+            // 检查列名是否存在且在映射的列名列表中
+            if (column != null && mappedColumnNames.contains(column.toUpperCase(Locale.ENGLISH))) {
+                // 获取对应列的类型处理器
+                final TypeHandler<?> typeHandler = propertyMapping.getTypeHandler();
+                // 使用类型处理器从ResultSet中获取值
+                Object value = typeHandler.getResult(rsw.getResultSet(), column);
+                // 获取属性名
+                final String property = propertyMapping.getProperty();
+                // 如果值不为NO_VALUE，且属性名和值都不为null
+                if (value != NO_VALUE && property != null && value != null) {
+                    // 使用反射工具类设置对象的属性值
+                    metaObject.setValue(property, value);
+                    foundValues = true;  // 设置foundValues为true，表示找到匹配的值
+                }
+            }
+        }
+        return foundValues;  // 返回是否找到匹配的值
+    }
+
 
 }

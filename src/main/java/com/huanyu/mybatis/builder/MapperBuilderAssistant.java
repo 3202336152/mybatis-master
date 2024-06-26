@@ -1,8 +1,10 @@
 package com.huanyu.mybatis.builder;
 
 import com.huanyu.mybatis.mapping.*;
+import com.huanyu.mybatis.reflection.MetaClass;
 import com.huanyu.mybatis.scripting.LanguageDriver;
 import com.huanyu.mybatis.session.Configuration;
+import com.huanyu.mybatis.type.TypeHandler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +27,41 @@ public class MapperBuilderAssistant extends BaseBuilder{
     public MapperBuilderAssistant(Configuration configuration, String resource) {
         super(configuration);
         this.resource = resource;
+    }
+
+    // 构建并返回一个 ResultMapping 对象
+    public ResultMapping buildResultMapping(
+            Class<?> resultType, // 结果类型
+            String property, // 属性名
+            String column, // 列名
+            List<ResultFlag> flags // 标志列表
+    ) {
+        // 解析结果的 Java 类型
+        Class<?> javaTypeClass = resolveResultJavaType(resultType, property, null);
+        // 解析类型处理器实例
+        TypeHandler<?> typeHandlerInstance = resolveTypeHandler(javaTypeClass, null);
+
+        // 创建 ResultMapping.Builder 实例
+        ResultMapping.Builder builder = new ResultMapping.Builder(configuration, property, column, javaTypeClass);
+        builder.typeHandler(typeHandlerInstance); // 设置类型处理器
+        builder.flags(flags); // 设置标志
+
+        return builder.build(); // 构建并返回 ResultMapping 对象
+    }
+
+    // 解析结果 Java 类型
+    private Class<?> resolveResultJavaType(Class<?> resultType, String property, Class<?> javaType) {
+        if (javaType == null && property != null) { // 如果 javaType 为空且属性名不为空
+            try {
+                MetaClass metaResultType = MetaClass.forClass(resultType); // 获取 MetaClass 实例
+                javaType = metaResultType.getSetterType(property); // 获取属性的 setter 类型
+            } catch (Exception ignore) { // 忽略异常
+            }
+        }
+        if (javaType == null) { // 如果 javaType 仍为空
+            javaType = Object.class; // 默认设置为 Object 类型
+        }
+        return javaType; // 返回解析后的 Java 类型
     }
 
     public String getCurrentNamespace() {
@@ -120,16 +157,23 @@ public class MapperBuilderAssistant extends BaseBuilder{
         }
         statementBuilder.resultMaps(resultMaps);
     }
-
+    // 构建结果映射
     public ResultMap addResultMap(String id, Class<?> type, List<ResultMapping> resultMappings) {
+        // 补全ID全路径，如：com.huanyu.mybatis.dao.IActivityDao + activityMap
+        id = applyCurrentNamespace(id, false);
+        // 创建 ResultMap.Builder 对象
         ResultMap.Builder inlineResultMapBuilder = new ResultMap.Builder(
-                configuration,
-                id,
-                type,
-                resultMappings);
-
+                configuration, // 配置对象
+                id,            // ResultMap 的标识符
+                type,          // 关联的类类型
+                resultMappings // ResultMapping 列表
+        );
+        // 构建 ResultMap 对象
         ResultMap resultMap = inlineResultMapBuilder.build();
+        // 将构建好的 ResultMap 添加到配置中
         configuration.addResultMap(resultMap);
+        // 返回构建好的 ResultMap
         return resultMap;
     }
+
 }

@@ -20,8 +20,9 @@
         <!-- XML 配置
         <mapper resource="mapper/User_Mapper.xml"/>
         -->
+        <mapper resource="mapper/Activity_Mapper.xml"/>
         <!--注解配置-->
-        <mapper class="com.huanyu.mybatis.dao.IUserDao"/>
+<!--        <mapper class="com.huanyu.mybatis.dao.IUserDao"/>-->
     </mappers>
 
 </configuration>
