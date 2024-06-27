@@ -5,6 +5,6 @@ import com.huanyu.mybatis.po.Activity;
 
 public interface IActivityDao {
 
-    Activity queryActivityById(Long activityId);
+    Activity queryActivityById(Activity activityId);
 
 }
