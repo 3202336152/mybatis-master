@@ -4,6 +4,15 @@
 
 <configuration>
 
+    <plugins>
+<!--        <plugin interceptor="com.huanyu.mybatis.plugin.PreparePlugin">-->
+<!--            <property name="threshold" value="1"/>-->
+<!--        </plugin>-->
+        <plugin interceptor="com.huanyu.mybatis.plugin.QueryPlugin">
+            <property name="threshold" value="1"/>
+        </plugin>
+    </plugins>
+
     <environments default="development">
         <environment id="development">
             <transactionManager type="JDBC"/>

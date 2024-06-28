@@ -68,6 +68,11 @@ public abstract class BaseStatementHandler implements StatementHandler{
         }
     }
 
+    @Override
+    public BoundSql getBoundSql() {
+        return boundSql;
+    }
+
     // 从Connection中实例化Statement
     protected abstract Statement instantiateStatement(Connection connection) throws SQLException;
 

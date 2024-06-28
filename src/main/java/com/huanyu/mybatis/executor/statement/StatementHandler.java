@@ -1,5 +1,6 @@
 package com.huanyu.mybatis.executor.statement;
 
+import com.huanyu.mybatis.mapping.BoundSql;
 import com.huanyu.mybatis.session.ResultHandler;
 
 import java.sql.Connection;
@@ -29,5 +30,8 @@ public interface StatementHandler {
 
     // 执行查询操作，返回list
     <E> List<E> query(Statement statement, ResultHandler resultHandler) throws SQLException;
+
+    // 获取绑定SQL
+    BoundSql getBoundSql();
 
 }

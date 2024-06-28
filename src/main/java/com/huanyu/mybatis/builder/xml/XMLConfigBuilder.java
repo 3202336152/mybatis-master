@@ -4,6 +4,7 @@ import com.huanyu.mybatis.builder.BaseBuilder;
 import com.huanyu.mybatis.datasource.DataSourceFactory;
 import com.huanyu.mybatis.io.Resources;
 import com.huanyu.mybatis.mapping.Environment;
+import com.huanyu.mybatis.plugin.Interceptor;
 import com.huanyu.mybatis.session.Configuration;
 import com.huanyu.mybatis.transaction.TransactionFactory;
 import org.dom4j.Document;
@@ -50,6 +51,8 @@ public class XMLConfigBuilder extends BaseBuilder {
      */
     public Configuration parse() {
         try {
+            // 插件
+            pluginElement(root.element("plugins"));
             // 环境
             environmentsElement(root.element("environments"));
             // 解析映射器
@@ -59,6 +62,37 @@ public class XMLConfigBuilder extends BaseBuilder {
         }
         return configuration;
     }
+
+    /**
+     * Mybatis 允许你在某一点切入映射语句执行的调度
+     * <plugins>
+     *     <plugin interceptor="com.huanyu.mybatis.plugin.TestPlugin">
+     *         <property name="test00" value="100"/>
+     *         <property name="test01" value="100"/>
+     *     </plugin>
+     * </plugins>
+     */
+    private void pluginElement(Element parent) throws Exception {
+        if (parent == null) return; // 如果父元素为空，直接返回
+
+        List<Element> elements = parent.elements(); // 获取父元素的所有子元素
+        for (Element element : elements) { // 遍历每个子元素
+            String interceptor = element.attributeValue("interceptor"); // 获取子元素中 "interceptor" 属性的值
+
+            // 参数配置
+            Properties properties = new Properties(); // 创建一个Properties对象用于存储属性
+            List<Element> propertyElementList = element.elements("property"); // 获取子元素中所有名为 "property" 的子元素
+            for (Element property : propertyElementList) { // 遍历每个 "property" 子元素
+                properties.setProperty(property.attributeValue("name"), property.attributeValue("value")); // 将每个 "property" 子元素的 "name" 和 "value" 属性值存储到Properties对象中
+            }
+            // 获取插件实现类并实例化
+            // 这里假设 "interceptor" 属性值是实现类的完全限定名，例如："com.huanyu.mybatis.plugin.TestPlugin"
+            Interceptor interceptorInstance = (Interceptor) resolveClass(interceptor).newInstance(); // 通过反射创建Interceptor实例
+            interceptorInstance.setProperties(properties); // 将配置属性设置到Interceptor实例中
+            configuration.addInterceptor(interceptorInstance); // 将Interceptor实例添加到配置中
+        }
+    }
+
 
     /**
      * <environments default="development">

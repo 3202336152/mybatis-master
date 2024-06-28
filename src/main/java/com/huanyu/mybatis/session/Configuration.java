@@ -12,9 +12,11 @@ import com.huanyu.mybatis.executor.resultset.ResultSetHandler;
 import com.huanyu.mybatis.executor.statement.PreparedStatementHandler;
 import com.huanyu.mybatis.executor.statement.StatementHandler;
 import com.huanyu.mybatis.mapping.BoundSql;
-import com.huanyu.mybatis.mapping.MappedStatement;
 import com.huanyu.mybatis.mapping.Environment;
+import com.huanyu.mybatis.mapping.MappedStatement;
 import com.huanyu.mybatis.mapping.ResultMap;
+import com.huanyu.mybatis.plugin.Interceptor;
+import com.huanyu.mybatis.plugin.InterceptorChain;
 import com.huanyu.mybatis.reflection.MetaObject;
 import com.huanyu.mybatis.reflection.factory.DefaultObjectFactory;
 import com.huanyu.mybatis.reflection.factory.ObjectFactory;
@@ -68,6 +70,9 @@ public class Configuration {
     // 结果映射，存在Map里
     protected final Map<String, ResultMap> resultMaps = new HashMap<>();
 
+    // 插件拦截器链
+    protected final InterceptorChain interceptorChain = new InterceptorChain();
+
     /**
      * 类型别名注册机
      */
@@ -76,7 +81,6 @@ public class Configuration {
 
     // 类型处理器注册机
     protected final TypeHandlerRegistry typeHandlerRegistry = new TypeHandlerRegistry();
-
 
     // 对象工厂和对象包装器工厂
     protected ObjectFactory objectFactory = new DefaultObjectFactory();
@@ -154,7 +158,11 @@ public class Configuration {
      * 创建语句处理器
      */
     public StatementHandler newStatementHandler(Executor executor, MappedStatement mappedStatement, Object parameter, RowBounds rowBounds, ResultHandler resultHandler, BoundSql boundSql) {
-        return new PreparedStatementHandler(executor, mappedStatement, parameter, rowBounds, resultHandler, boundSql);
+        // 创建语句处理器，Mybatis 这里加了路由 STATEMENT、PREPARED、CALLABLE 我们默认只根据预处理进行实例化
+        StatementHandler statementHandler = new PreparedStatementHandler(executor, mappedStatement, parameter, rowBounds, resultHandler, boundSql);
+        // 嵌入插件，代理对象
+        statementHandler = (StatementHandler) interceptorChain.pluginAll(statementHandler);
+        return statementHandler;
     }
 
     // 创建元对象
@@ -203,4 +211,7 @@ public class Configuration {
         resultMaps.put(resultMap.getId(), resultMap);
     }
 
+    public void addInterceptor(Interceptor interceptorInstance) {
+        interceptorChain.addInterceptor(interceptorInstance);
+    }
 }
