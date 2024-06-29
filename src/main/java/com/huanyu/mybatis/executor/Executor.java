@@ -1,5 +1,6 @@
 package com.huanyu.mybatis.executor;
 
+import com.huanyu.mybatis.cache.CacheKey;
 import com.huanyu.mybatis.mapping.BoundSql;
 import com.huanyu.mybatis.mapping.MappedStatement;
 import com.huanyu.mybatis.session.ResultHandler;
@@ -22,6 +23,9 @@ public interface Executor {
 
     ResultHandler NO_RESULT_HANDLER = null;
 
+    // 数据查询操作，返回结果为列表形式
+    <E> List<E> query(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler, CacheKey key, BoundSql boundSql) throws SQLException;
+
     // 数据更新操作，其中数据的增加、删除、更新均可由该方法实现
     int update(MappedStatement ms, Object parameter) throws SQLException;
 
@@ -34,7 +38,7 @@ public interface Executor {
      * @return 查询结果
      * @throws SQLException
      */
-    <E> List<E> query(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler, BoundSql boundSql);
+    <E> List<E> query(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler) throws SQLException;
 
     // 获取事务
     Transaction getTransaction();
@@ -44,4 +48,11 @@ public interface Executor {
     void rollback(boolean required) throws SQLException;
     // 关闭执行器
     void close(boolean forceRollback);
+
+    // 清理Session缓存
+    void clearLocalCache();
+
+    // 创建缓存 Key
+    CacheKey createCacheKey(MappedStatement ms, Object parameterObject, RowBounds rowBounds, BoundSql boundSql);
+
 }

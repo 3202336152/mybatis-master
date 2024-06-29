@@ -3,6 +3,7 @@ package com.huanyu.mybatis.mapping;
 import com.huanyu.mybatis.scripting.LanguageDriver;
 import com.huanyu.mybatis.session.Configuration;
 
+import javax.crypto.KeyGenerator;
 import java.util.List;
 
 /**
@@ -24,6 +25,9 @@ import java.util.List;
  */
 public class MappedStatement {
 
+    // Mapper文件的磁盘路径
+    private String resource;
+
     // Configuration对象
     private Configuration configuration;
 
@@ -41,6 +45,13 @@ public class MappedStatement {
     private LanguageDriver lang;
 
     private List<ResultMap> resultMaps;
+
+    // 执行该语句前是否清除一二级缓存
+    private boolean flushCacheRequired;
+    private KeyGenerator keyGenerator;
+    // 存储了主键的属性名
+    private String[] keyProperties;
+    private String[] keyColumns;
 
     MappedStatement() {
         // constructor disabled
@@ -112,5 +123,24 @@ public class MappedStatement {
         return resultMaps;
     }
 
+    public String[] getKeyColumns() {
+        return keyColumns;
+    }
+
+    public String[] getKeyProperties() {
+        return keyProperties;
+    }
+
+    public KeyGenerator getKeyGenerator() {
+        return keyGenerator;
+    }
+
+    public String getResource() {
+        return resource;
+    }
+
+    public boolean isFlushCacheRequired() {
+        return flushCacheRequired;
+    }
 
 }

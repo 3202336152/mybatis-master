@@ -6,6 +6,7 @@ import com.huanyu.mybatis.io.Resources;
 import com.huanyu.mybatis.mapping.Environment;
 import com.huanyu.mybatis.plugin.Interceptor;
 import com.huanyu.mybatis.session.Configuration;
+import com.huanyu.mybatis.session.LocalCacheScope;
 import com.huanyu.mybatis.transaction.TransactionFactory;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -53,6 +54,8 @@ public class XMLConfigBuilder extends BaseBuilder {
         try {
             // 插件
             pluginElement(root.element("plugins"));
+            // 设置
+            settingsElement(root.element("settings"));
             // 环境
             environmentsElement(root.element("environments"));
             // 解析映射器
@@ -92,6 +95,29 @@ public class XMLConfigBuilder extends BaseBuilder {
             configuration.addInterceptor(interceptorInstance); // 将Interceptor实例添加到配置中
         }
     }
+
+    /**
+     * <settings>
+     *     <!--缓存级别：SESSION/STATEMENT-->
+     *     <setting name="localCacheScope" value="SESSION"/>
+     * </settings>
+     */
+    private void settingsElement(Element context) {
+        // 如果context为null，则直接返回
+        if (context == null) return;
+        // 获取context的所有子元素，并存储在一个List中
+        List<Element> elements = context.elements();
+        // 创建一个Properties对象来存储属性键值对
+        Properties props = new Properties();
+        // 遍历所有子元素
+        for (Element element : elements) {
+            // 将每个子元素的"name"属性和"value"属性添加到Properties对象中
+            props.setProperty(element.attributeValue("name"), element.attributeValue("value"));
+        }
+        // 根据Properties对象中的"localCacheScope"属性值，设置本地缓存范围
+        configuration.setLocalCacheScope(LocalCacheScope.valueOf(props.getProperty("localCacheScope")));
+    }
+
 
 
     /**

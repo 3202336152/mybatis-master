@@ -62,6 +62,9 @@ public class Configuration {
      */
     protected MapperRegistry mapperRegistry = new MapperRegistry(this);
 
+    // 缓存机制，默认不配置的情况是 SESSION
+    protected LocalCacheScope localCacheScope = LocalCacheScope.SESSION;
+
     /**
      * 映射的语句，存在Map里
      */
@@ -214,4 +217,13 @@ public class Configuration {
     public void addInterceptor(Interceptor interceptorInstance) {
         interceptorChain.addInterceptor(interceptorInstance);
     }
+
+    public LocalCacheScope getLocalCacheScope() {
+        return localCacheScope;
+    }
+
+    public void setLocalCacheScope(LocalCacheScope localCacheScope) {
+        this.localCacheScope = localCacheScope;
+    }
+
 }
