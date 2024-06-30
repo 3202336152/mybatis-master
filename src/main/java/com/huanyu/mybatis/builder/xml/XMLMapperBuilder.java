@@ -3,6 +3,7 @@ package com.huanyu.mybatis.builder.xml;
 import com.huanyu.mybatis.builder.BaseBuilder;
 import com.huanyu.mybatis.builder.MapperBuilderAssistant;
 import com.huanyu.mybatis.builder.ResultMapResolver;
+import com.huanyu.mybatis.cache.Cache;
 import com.huanyu.mybatis.io.Resources;
 import com.huanyu.mybatis.mapping.ResultFlag;
 import com.huanyu.mybatis.mapping.ResultMap;
@@ -17,6 +18,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Properties;
 
 /**
  * ClassName: XMLMapperBuilder
@@ -84,10 +86,13 @@ public class XMLMapperBuilder extends BaseBuilder {
         }
         builderAssistant.setCurrentNamespace(namespace);
 
-        // 2.解析resultMap
+        // 2. 配置cache
+        cacheElement(element.element("cache"));
+
+        // 3.解析resultMap
         resultMapElements(element.elements("resultMap"));
 
-        // 3.配置select|insert|update|delete
+        // 4.配置select|insert|update|delete
         // 处理各个数据库操作语句
         buildStatementFromContext(element.elements("select"),
                 element.elements("insert"),
@@ -95,6 +100,43 @@ public class XMLMapperBuilder extends BaseBuilder {
                 element.elements("delete")
         );
     }
+
+    /**
+     * <cache eviction="FIFO" flushInterval="600000" size="512" readOnly="true"/>
+     */
+    private void cacheElement(Element context) {
+        // 如果传入的 context 是 null，则直接返回，不进行任何操作
+        if (context == null) return;
+        // 解析基础配置信息
+        // 获取缓存类型，默认为 "PERPETUAL"，并解析为对应的 Class 类型
+        String type = context.attributeValue("type", "PERPETUAL");
+        Class<? extends Cache> typeClass = typeAliasRegistry.resolveAlias(type);
+
+        // 获取淘汰策略，默认为 "FIFO"，并解析为对应的 Class 类型
+        String eviction = context.attributeValue("eviction", "FIFO");
+        Class<? extends Cache> evictionClass = typeAliasRegistry.resolveAlias(eviction);
+
+        // 获取刷新间隔时间和缓存大小，并解析为 Long 和 Integer 类型
+        Long flushInterval = Long.valueOf(context.attributeValue("flushInterval"));
+        Integer size = Integer.valueOf(context.attributeValue("size"));
+
+        // 获取缓存的读写模式，默认为非只读（readOnly="false"）
+        boolean readWrite = !Boolean.parseBoolean(context.attributeValue("readOnly", "false"));
+
+        // 获取是否支持阻塞，默认为非阻塞（blocking="false"）
+        boolean blocking = !Boolean.parseBoolean(context.attributeValue("blocking", "false"));
+
+        // 解析额外的属性信息，如 <property name="cacheFile" value="/tmp/xxx-cache.tmp"/>
+        // 将子元素属性解析为 Properties 对象
+        List<Element> elements = context.elements();
+        Properties props = new Properties();
+        for (Element element : elements) {
+            props.setProperty(element.attributeValue("name"), element.attributeValue("value"));
+        }
+        // 使用 builderAssistant 构建缓存，传入各个解析得到的参数
+        builderAssistant.useNewCache(typeClass, evictionClass, flushInterval, size, readWrite, blocking, props);
+    }
+
 
     // 遍历给定的元素列表，并调用resultMapElement处理每个元素
     private void resultMapElements(List<Element> list) {

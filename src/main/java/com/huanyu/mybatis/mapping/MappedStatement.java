@@ -1,9 +1,10 @@
 package com.huanyu.mybatis.mapping;
 
+import com.huanyu.mybatis.cache.Cache;
 import com.huanyu.mybatis.scripting.LanguageDriver;
 import com.huanyu.mybatis.session.Configuration;
 
-import javax.crypto.KeyGenerator;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -48,10 +49,12 @@ public class MappedStatement {
 
     // 执行该语句前是否清除一二级缓存
     private boolean flushCacheRequired;
-    private KeyGenerator keyGenerator;
     // 存储了主键的属性名
     private String[] keyProperties;
     private String[] keyColumns;
+
+    private Cache cache;
+    private boolean useCache;
 
     MappedStatement() {
         // constructor disabled
@@ -81,7 +84,13 @@ public class MappedStatement {
         public MappedStatement build() {
             assert mappedStatement.configuration != null;
             assert mappedStatement.id != null;
+            mappedStatement.resultMaps = Collections.unmodifiableList(mappedStatement.resultMaps);
             return mappedStatement;
+        }
+
+        public Builder resource(String resource) {
+            mappedStatement.resource = resource;
+            return this;
         }
 
         public String id() {
@@ -93,6 +102,29 @@ public class MappedStatement {
             return this;
         }
 
+        public Builder cache(Cache cache) {
+            mappedStatement.cache = cache;
+            return this;
+        }
+
+        public Builder flushCacheRequired(boolean flushCacheRequired) {
+            mappedStatement.flushCacheRequired = flushCacheRequired;
+            return this;
+        }
+
+        public Builder useCache(boolean useCache) {
+            mappedStatement.useCache = useCache;
+            return this;
+        }
+
+    }
+
+    private static String[] delimitedStringToArray(String in) {
+        if (in == null || in.trim().length() == 0) {
+            return null;
+        } else {
+            return in.split(",");
+        }
     }
 
     public Configuration getConfiguration() {
@@ -131,9 +163,6 @@ public class MappedStatement {
         return keyProperties;
     }
 
-    public KeyGenerator getKeyGenerator() {
-        return keyGenerator;
-    }
 
     public String getResource() {
         return resource;
@@ -141,6 +170,14 @@ public class MappedStatement {
 
     public boolean isFlushCacheRequired() {
         return flushCacheRequired;
+    }
+
+    public boolean isUseCache() {
+        return useCache;
+    }
+
+    public Cache getCache() {
+        return cache;
     }
 
 }

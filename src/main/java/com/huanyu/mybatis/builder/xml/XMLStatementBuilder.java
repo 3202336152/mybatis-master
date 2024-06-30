@@ -34,7 +34,7 @@ public class XMLStatementBuilder extends BaseBuilder {
         this.element = element;
     }
 
-    // 解析select、insert、update、delete这四类节点
+    //解析语句(select|insert|update|delete)
     //<select
     //  id="selectPerson"
     //  parameterType="int"
@@ -66,6 +66,10 @@ public class XMLStatementBuilder extends BaseBuilder {
         // 读取和判断语句类型
         SqlCommandType sqlCommandType = SqlCommandType.valueOf(nodeName.toUpperCase(Locale.ENGLISH));
 
+        boolean isSelect = sqlCommandType == SqlCommandType.SELECT;
+        boolean flushCache = Boolean.parseBoolean(element.attributeValue("flushCache", String.valueOf(!isSelect)));
+        boolean useCache = Boolean.parseBoolean(element.attributeValue("useCache", String.valueOf(isSelect)));
+
         // 获取默认语言驱动器
         Class<?> langClass = configuration.getLanguageRegistry().getDefaultDriverClass();
         LanguageDriver langDriver = configuration.getLanguageRegistry().getDriver(langClass);
@@ -80,6 +84,9 @@ public class XMLStatementBuilder extends BaseBuilder {
                 parameterTypeClass,
                 resultMap,
                 resultTypeClass,
+                flushCache,
+                useCache,
                 langDriver);
+
     }
 }

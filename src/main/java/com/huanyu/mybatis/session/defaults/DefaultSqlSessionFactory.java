@@ -35,20 +35,28 @@ public class DefaultSqlSessionFactory implements SqlSessionFactory {
     public SqlSession openSession() {
         Transaction tx = null;
         try {
+            // 获取当前配置的环境信息
             final Environment environment = configuration.getEnvironment();
+            // 获取事务工厂
             TransactionFactory transactionFactory = environment.getTransactionFactory();
+            // 创建新的事务，并设置事务隔离级别为 READ_COMMITTED，自动提交为 false
             tx = transactionFactory.newTransaction(configuration.getEnvironment().getDataSource(), TransactionIsolationLevel.READ_COMMITTED, false);
             // 创建执行器
             final Executor executor = configuration.newExecutor(tx);
-            // 创建DefaultSqlSession
+            // 使用配置和执行器创建 DefaultSqlSession 对象，并返回
             return new DefaultSqlSession(configuration, executor);
         } catch (Exception e) {
+            // 异常处理
             try {
-                assert tx != null;
+                // 尝试关闭事务
+                assert tx != null; // 断言事务对象不为 null
                 tx.close();
             } catch (SQLException ignore) {
+                // 关闭事务过程中的异常可以忽略
             }
-            throw new RuntimeException("Error opening session.  Cause: " + e);
+            // 抛出运行时异常，包含详细的错误信息
+            throw new RuntimeException("Error opening session. Cause: " + e);
         }
     }
+
 }

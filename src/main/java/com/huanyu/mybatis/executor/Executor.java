@@ -23,11 +23,11 @@ public interface Executor {
 
     ResultHandler NO_RESULT_HANDLER = null;
 
-    // 数据查询操作，返回结果为列表形式
-    <E> List<E> query(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler, CacheKey key, BoundSql boundSql) throws SQLException;
-
     // 数据更新操作，其中数据的增加、删除、更新均可由该方法实现
     int update(MappedStatement ms, Object parameter) throws SQLException;
+
+    // 数据查询操作，返回结果为列表形式
+    <E> List<E> query(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler, CacheKey key, BoundSql boundSql) throws SQLException;
 
     /**
      * 执行查询操作,返回结果为列表形式
@@ -55,4 +55,5 @@ public interface Executor {
     // 创建缓存 Key
     CacheKey createCacheKey(MappedStatement ms, Object parameterObject, RowBounds rowBounds, BoundSql boundSql);
 
+    void setExecutorWrapper(Executor executor);
 }

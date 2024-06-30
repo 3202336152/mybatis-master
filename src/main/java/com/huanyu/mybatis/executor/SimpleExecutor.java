@@ -17,7 +17,7 @@ import java.util.List;
  * ClassName: SimpleExecutor
  * Package: com.huanyu.mybatis.executor
  * Description: 简单执行器
- *
+ * 具体装饰类
  * @Author: 寰宇
  * @Create: 2024/6/15 16:14
  * @Version: 1.0

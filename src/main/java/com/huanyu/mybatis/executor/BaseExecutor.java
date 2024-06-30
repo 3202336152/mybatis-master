@@ -269,6 +269,7 @@ public abstract class BaseExecutor implements Executor {
         } finally {
             // 确保事务被设置为null，并将closed标志设置为true
             transaction = null;
+            localCache = null;
             closed = true;
         }
     }
@@ -282,6 +283,11 @@ public abstract class BaseExecutor implements Executor {
                 // 捕获SQL异常，并忽略
             }
         }
+    }
+
+    @Override
+    public void setExecutorWrapper(Executor executor) {
+        this.wrapper = wrapper;
     }
 
 }

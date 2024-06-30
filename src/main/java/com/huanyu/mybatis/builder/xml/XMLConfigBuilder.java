@@ -98,8 +98,10 @@ public class XMLConfigBuilder extends BaseBuilder {
 
     /**
      * <settings>
-     *     <!--缓存级别：SESSION/STATEMENT-->
-     *     <setting name="localCacheScope" value="SESSION"/>
+     * <!-- 全局缓存：true/false -->
+     * <setting name="cacheEnabled" value="false"/>
+     * <!--缓存级别：SESSION/STATEMENT-->
+     * <setting name="localCacheScope" value="SESSION"/>
      * </settings>
      */
     private void settingsElement(Element context) {
@@ -114,6 +116,8 @@ public class XMLConfigBuilder extends BaseBuilder {
             // 将每个子元素的"name"属性和"value"属性添加到Properties对象中
             props.setProperty(element.attributeValue("name"), element.attributeValue("value"));
         }
+        // 根据配置文件设置缓存是否启用
+        configuration.setCacheEnabled(booleanValueOf(props.getProperty("cacheEnabled"), true));
         // 根据Properties对象中的"localCacheScope"属性值，设置本地缓存范围
         configuration.setLocalCacheScope(LocalCacheScope.valueOf(props.getProperty("localCacheScope")));
     }
